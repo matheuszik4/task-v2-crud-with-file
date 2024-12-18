@@ -2,7 +2,7 @@ class TaskModel {
   final String objectId;
   final String nomePessoa;
   final String descricaoTarefa;
-  final bool tarefaIsOk;
+  bool tarefaIsOk;
   final String fotoPessoaPath;
 
   TaskModel({
@@ -13,9 +13,6 @@ class TaskModel {
     this.objectId = '',
   });
 
-  set tarefaIsOk(bool value) {
-    tarefaIsOk = value;
-  }
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(

@@ -10,7 +10,6 @@ class TaskRepository {
 
   Future<List<TaskModel>> index() async {
     var result = await back4app.dio.get('/Tarefa');
-    print(result.data);
     return TaskModel.fromJsonCollection(result.data);
   }
 
@@ -30,10 +29,9 @@ class TaskRepository {
     }
   }
 
-  Future<void> toggleCheck(TaskModel taskModel) async {
-    
+  Future<void> update(TaskModel taskModel) async {
     var taskModelToggle = taskModel.toJsonEndpoint();
-    taskModelToggle['tarefaIsOk'] = !taskModelToggle['tarefaIsOk'];
+    print(taskModelToggle);
 
     try {
       await back4app.dio.put("/Tarefa/${taskModel.objectId}", data: taskModelToggle);
@@ -42,10 +40,4 @@ class TaskRepository {
     }
 
   }
-
-  // Future<TaskModel> show(String cepShow) async {
-  //   List<TaskModel> allTasks = await index();
-  //   return allTasks.firstWhere((task) => cep.cep == cepShow);
-  // }
-
 }

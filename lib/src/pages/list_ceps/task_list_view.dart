@@ -2,9 +2,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:task_dio_v2/src/provider/task_provider.dart';
 import '../../model/task_model.dart';
 import '../../repository/task_repository.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 
 class TaskListView extends StatefulWidget {
@@ -22,48 +24,33 @@ class _TaskListViewState extends State<TaskListView> {
   final _descricaoTarefaController = TextEditingController();
   final _filePathController = TextEditingController();
 
-  List<TaskModel> tarefaModel = [];
-
   @override
   void initState() {
     super.initState();
-    this.getData();
   }
-
-  getData() async {
-    final taskRepository = TaskRepository();
-    this.tarefaModel = await taskRepository.index();
-    setState(() {});
-  }
-
-  deleteCep(String objectId) async {
-    final taskRepository = TaskRepository();
-    await taskRepository.delete(objectId);
-    this.getData();
-  }
-
 
   @override
   Widget build(BuildContext context) {
+
+     final taskProvider = Provider.of<TaskProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
       body: ListView.builder(
-        itemCount: tarefaModel.length, 
+        itemCount: taskProvider.listTasks.length, 
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(tarefaModel[index].nomePessoa), 
-            subtitle: Text('${tarefaModel[index].descricaoTarefa}'),
-            leading: Image.file(File(tarefaModel[index].fotoPessoaPath)), 
+            title: Text(taskProvider.listTasks[index].nomePessoa), 
+            subtitle: Text('${taskProvider.listTasks[index].descricaoTarefa}'),
+            leading: Image.file(File(taskProvider.listTasks[index].fotoPessoaPath)), 
             trailing: Checkbox(
               tristate: true,
-              value: tarefaModel[index].tarefaIsOk,
+              value: taskProvider.listTasks[index].tarefaIsOk,
               onChanged: (bool? value) async {
-                TaskRepository taskRepository = TaskRepository();
-                await taskRepository.toggleCheck(tarefaModel[index]);
-                getData();
+                taskProvider.toggleCheck(taskProvider.listTasks[index]);
               },
             ),
           );
@@ -111,14 +98,6 @@ class _TaskListViewState extends State<TaskListView> {
                       },
                       child: Text('Abrir Galeria')
                     ),
-                    // TextField(
-                    //   controller: _filePathController,
-                    //   decoration: const InputDecoration(
-                    //     labelText: 'File Path',
-                    //     hintText: 'Digite a path file',
-                    //   ),
-                    //   keyboardType: TextInputType.text,
-                    // ),
                   ],
                 ),
               ),
@@ -141,21 +120,18 @@ class _TaskListViewState extends State<TaskListView> {
                       return;
                     }
 
-                    final taskRepository = TaskRepository();
-
-                    taskRepository.create(
+                    taskProvider.create(
                           TaskModel(
                             nomePessoa: nomePessoa,
                             descricaoTarefa: descricaoTarefa,
                             tarefaIsOk: false,
                             fotoPessoaPath: filePath
                           )
-                      );
+                    );
+                    
                     print('Adicionando Tarefa...');
 
                     Navigator.of(context).pop();
-                    
-                    this.getData();
                   },
                   child: const Text('Adicionar Tarefa'),
                 ),
